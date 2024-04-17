@@ -1,0 +1,170 @@
+#include <iostream>
+#include <vector>
+#include <windows.h>
+
+using namespace std;
+
+struct Contact {
+ string name;
+ vector <string> numbers;
+ Contact* left;
+ Contact* right;
+};
+
+void addContact(Contact*& first, string name, string number) {
+ if (first == nullptr) {
+  first = new Contact;
+  first->name = name;
+  first->numbers.push_back(number);
+  first->left = nullptr;
+  first->right = nullptr;
+  return;
+ }
+ if (name > first->name) {
+  addContact(first->right, name, number);
+  return;
+ }
+ if (name < first->name) {
+  addContact(first->left, name, number);
+  return;
+ }
+}
+
+void addNumber(Contact*& first, string name, string number) {
+ if (first == nullptr) {
+  cout << "Контакт не найден. Чтобы добавить новый контакт, нажмите 1" << endl << endl;
+  return;
+ }
+ if (name == first->name) {
+  cout << "Введите номер телефона, который хотите добавить данному контакту: ";
+  cin >> number;
+  first->numbers.push_back(number);
+  cout << "Номер телефона успешно добавлен" << endl << endl;
+  return;
+ }
+ if (name > first->name) {
+  addNumber(first->right, name, number);
+  return;
+ }
+ if (name < first->name) {
+  addNumber(first->left, name, number);
+  return;
+ }
+}
+
+void printContacts(Contact* first) {
+ if (first == nullptr) {
+  return;
+ }
+ else {
+  cout << "Контакт: " << first->name << endl;
+  cout << "Номера телефона: ";
+  for (int i = 0; i < first->numbers.size(); i++) {
+   cout << first->numbers[i] << " ";
+  }
+  cout << endl << endl;
+  printContacts(first->left);
+  printContacts(first->right);
+  return;
+
+
+ }
+}
+
+void findContact(Contact* first, string name) {
+ if (first == nullptr) {
+  return;
+ }
+ if (name > first->name) {
+  findContact(first->right, name);
+  return;
+ }
+ if (name < first->name) {
+  findContact(first->left, name);
+  return;
+ }
+ if (name == first->name) {
+  cout << "Найденные номера телефона: " << endl;
+  for (int i = 0; i < first->numbers.size(); i++) {
+   cout << first->numbers[i] << " ";
+  }
+  return;
+ }
+}
+
+Contact*& findContact2(Contact*& first, string name) {
+ if (first == nullptr) {
+  return first;
+ }
+ if (name > first->name) {
+  return findContact2(first->right, name);
+ }
+ if (name < first->name) {
+  return findContact2(first->left, name);
+ }
+ if (name == first->name) {
+  return first;
+ }
+}
+
+void delContact(Contact*& first, string name) {
+ Contact*& now = findContact2(first, name);
+ if (now->left == nullptr && now->right == nullptr) {
+  delete now;
+  now = nullptr;
+  return;
+ }
+ Contact* copy = now;
+ if (now->left == nullptr && now->right != nullptr) {
+  now = now->right;
+  delete copy;
+  return;
+ }
+ if (now->left != nullptr && now->right == nullptr) {
+  now = now->left;
+  delete copy;
+  return;
+ }
+ if (now->left->right != nullptr) {
+  Contact* maxx = now->left;
+  while (now->right->right != nullptr) {
+   maxx = maxx->right;
+  }
+  now = maxx->right;
+  maxx->right = nullptr;
+  now->left = copy->left;
+  now->right;
+  delete copy;
+  return;
+ }
+ else {
+  now = now->left;
+  now->right = copy->right;
+  delete copy;
+ }
+
+}
+
+int main() {
+ SetConsoleCP(1251);
+ SetConsoleOutputCP(1251);
+ int option;
+ Contact* first = nullptr;
+ cout << "Чтобы добавить новый контакт в телефонную книгу, нажмите 1" << endl;
+ cout << "Чтобы добавить в телефонную книгу новый номер телефона уже существующему контакту, нажмите 2" << endl;
+ cout << "Чтобы увидеть все существующие контакты, нажмите 3" << endl;
+ cout << "Чтобы найти контакт по имени, нажмите 4" << endl;
+ cout << "Чтобы удалить контакт из телефонной книги, нажмите 5" << endl;
+ cout << "Чтобы выйти из приложения телефонной книги, нажмите 6" << endl << endl;
+ cout << "Выберете нужную вам опцию: " << endl;
+ cin >> option;
+ cout << endl;
+ while (option != 6) {
+  if (option == 1) {
+   string name, number;
+   cout << "Введите имя нового контакта: ";
+   cin >> name;
+   cout << "Введите номер телефона: ";
+   cin >> number;
+   addContact(first, name, number);
+   cout << "Контакт успешно добавлен в телефонную книгу" << endl << endl;
